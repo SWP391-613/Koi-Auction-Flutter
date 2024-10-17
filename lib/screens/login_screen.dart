@@ -4,6 +4,8 @@ import 'package:instagram_clone_flutter/resources/auth_methods.dart';
 import 'package:instagram_clone_flutter/responsive/mobile_screen_layout.dart';
 import 'package:instagram_clone_flutter/responsive/responsive_layout.dart';
 import 'package:instagram_clone_flutter/responsive/web_screen_layout.dart';
+import 'package:instagram_clone_flutter/screens/koi_detail_screen.dart';
+import 'package:instagram_clone_flutter/screens/koi_list_screen.dart';
 import 'package:instagram_clone_flutter/screens/signup_screen.dart';
 import 'package:instagram_clone_flutter/utils/colors.dart';
 import 'package:instagram_clone_flutter/utils/global_variable.dart';
@@ -48,7 +50,8 @@ class _LoginScreenState extends State<LoginScreen> {
         Navigator.of(context).pushAndRemoveUntil(
             MaterialPageRoute(
               builder: (context) => const ResponsiveLayout(
-                mobileScreenLayout: MobileScreenLayout(),
+                mobileScreenLayout: KoiListPage(),
+                // mobileScreenLayout: MobileScreenLayout(),
                 webScreenLayout: WebScreenLayout(),
               ),
             ),
