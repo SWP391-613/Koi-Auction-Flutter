@@ -41,8 +41,8 @@ class MyApp extends StatelessWidget {
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
-        title: 'Instagram Clone',
-        theme: ThemeData.dark().copyWith(
+        title: 'Auction Koi',
+        theme: ThemeData.light().copyWith(
           scaffoldBackgroundColor: mobileBackgroundColor,
         ),
         home: StreamBuilder(

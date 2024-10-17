@@ -117,7 +117,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                         ? FollowButton(
                                             text: 'Sign Out',
                                             backgroundColor:
-                                                mobileBackgroundColor,
+                                              mobileBackgroundColor,
                                             textColor: primaryColor,
                                             borderColor: Colors.grey,
                                             function: () async {

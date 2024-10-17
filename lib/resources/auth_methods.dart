@@ -1,98 +1,108 @@
+import 'dart:convert';  // For JSON encoding
+import 'package:dio/dio.dart';
 import 'dart:typed_data';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
+import 'package:instagram_clone_flutter/constants/endpoints.dart';
 import 'package:instagram_clone_flutter/models/user.dart' as model;
 import 'package:instagram_clone_flutter/resources/storage_methods.dart';
 
 class AuthMethods {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  final Dio _dio = Dio(); // Create a Dio instance
+
+  // Logging in user via HTTP request
+  Future<String> loginUser({
+    required String email,
+    required String password,
+  }) async {
+    try {
+      if (email.isEmpty || password.isEmpty) {
+        return "Please enter all the fields";
+      }
+
+      if (kDebugMode) {
+        print("Logging in with email: $email and password: $password");
+      }
+
+      final response = await _dio.post(
+        loginEndpoint,
+        data: {
+          'email': email,
+          'password': password,
+        },
+        options: Options(
+          headers: {
+            'Content-Type': 'application/json; charset=UTF-8',
+          },
+          validateStatus: (status) => status! < 500,
+        ),
+      );
+
+      if (response.statusCode == 200) {
+        return "success";
+      } else {
+        String errorMessage = response.data['message'] ?? "Login failed";
+        if (kDebugMode) {
+          print("Error when logging in: $errorMessage");
+          print("Status code: ${response.statusCode}");
+          print("Response data: ${response.data}");
+        }
+        return errorMessage;
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print("Exception occurred during login: $e");
+      }
+      return "An unexpected error occurred. Please try again later.";
+    }
+  }
 
   // get user details
   Future<model.User> getUserDetails() async {
     User currentUser = _auth.currentUser!;
 
     DocumentSnapshot documentSnapshot =
-        await _firestore.collection('users').doc(currentUser.uid).get();
+    await _firestore.collection('users').doc(currentUser.uid).get();
 
     return model.User.fromSnap(documentSnapshot);
   }
 
+  // Signing out user via HTTP request
+  Future<String> signOut() async {
+    String res = "Some error occurred";
+
+    try {
+      const String url = 'http://localhost:4000/api/v1/users/logout';
+
+      final response = await _dio.post(
+        url,
+        options: Options(
+          headers: {
+            'Content-Type': 'application/json; charset=UTF-8',
+            // Include any additional headers if required, like authorization tokens
+          },
+        ),
+      );
+
+      if (response.statusCode == 200) {
+        res = "success";  // Assuming logout was successful
+      } else {
+        res = response.data['message'] ?? "Logout failed";
+      }
+    } catch (e) {
+      res = e.toString();
+    }
+
+    return res;
+  }
+
   // Signing Up User
 
-  Future<String> signUpUser({
-    required String email,
-    required String password,
-    required String username,
-    required String bio,
-    required Uint8List file,
-  }) async {
-    String res = "Some error Occurred";
-    try {
-      if (email.isNotEmpty ||
-          password.isNotEmpty ||
-          username.isNotEmpty ||
-          bio.isNotEmpty ||
-          file != null) {
-        // registering user in auth with email and password
-        UserCredential cred = await _auth.createUserWithEmailAndPassword(
-          email: email,
-          password: password,
-        );
-
-        String photoUrl =
-            await StorageMethods().uploadImageToStorage('profilePics', file, false);
-
-        model.User user = model.User(
-          username: username,
-          uid: cred.user!.uid,
-          photoUrl: photoUrl,
-          email: email,
-          bio: bio,
-          followers: [],
-          following: [],
-        );
-
-        // adding user in our database
-        await _firestore
-            .collection("users")
-            .doc(cred.user!.uid)
-            .set(user.toJson());
-
-        res = "success";
-      } else {
-        res = "Please enter all the fields";
-      }
-    } catch (err) {
-      return err.toString();
-    }
-    return res;
+  Future<String> signUpUser() async  {
+    return "success";
   }
 
-  // logging in user
-  Future<String> loginUser({
-    required String email,
-    required String password,
-  }) async {
-    String res = "Some error Occurred";
-    try {
-      if (email.isNotEmpty || password.isNotEmpty) {
-        // logging in user with email and password
-        await _auth.signInWithEmailAndPassword(
-          email: email,
-          password: password,
-        );
-        res = "success";
-      } else {
-        res = "Please enter all the fields";
-      }
-    } catch (err) {
-      return err.toString();
-    }
-    return res;
-  }
-
-  Future<void> signOut() async {
-    await _auth.signOut();
-  }
 }

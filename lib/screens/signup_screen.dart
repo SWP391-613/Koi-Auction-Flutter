@@ -41,12 +41,7 @@ class _SignupScreenState extends State<SignupScreen> {
     });
 
     // signup user using our authmethodds
-    String res = await AuthMethods().signUpUser(
-        email: _emailController.text,
-        password: _passwordController.text,
-        username: _usernameController.text,
-        bio: _bioController.text,
-        file: _image!);
+    String res = await AuthMethods().signUpUser();
     // if string returned is sucess, user has been created
     if (res == "success") {
       setState(() {
@@ -98,7 +93,7 @@ class _SignupScreenState extends State<SignupScreen> {
                 child: Container(),
               ),
               SvgPicture.asset(
-                'assets/ic_instagram.svg',
+                'assets/ic_auctionkoi.svg',
                 color: primaryColor,
                 height: 64,
               ),

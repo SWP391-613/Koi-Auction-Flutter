@@ -33,8 +33,16 @@ class _LoginScreenState extends State<LoginScreen> {
     setState(() {
       _isLoading = true;
     });
+
     String res = await AuthMethods().loginUser(
-        email: _emailController.text, password: _passwordController.text);
+        email: _emailController.text.trim(),
+        password: _passwordController.text.trim()
+    );
+
+    setState(() {
+      _isLoading = false;
+    });
+
     if (res == 'success') {
       if (context.mounted) {
         Navigator.of(context).pushAndRemoveUntil(
@@ -45,15 +53,8 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
             ),
             (route) => false);
-
-        setState(() {
-          _isLoading = false;
-        });
       }
     } else {
-      setState(() {
-        _isLoading = false;
-      });
       if (context.mounted) {
         showSnackBar(context, res);
       }
@@ -79,8 +80,8 @@ class _LoginScreenState extends State<LoginScreen> {
                 child: Container(),
               ),
               SvgPicture.asset(
-                'assets/ic_instagram.svg',
-                color: primaryColor,
+                'assets/ic_auctionkoi.svg',
+                // color: primaryColor,
                 height: 64,
               ),
               const SizedBox(
@@ -109,6 +110,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   width: double.infinity,
                   alignment: Alignment.center,
                   padding: const EdgeInsets.symmetric(vertical: 12),
+
                   decoration: const ShapeDecoration(
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.all(Radius.circular(4)),
@@ -117,7 +119,10 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   child: !_isLoading
                       ? const Text(
-                          'Log in',
+                          'Log In', style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
                         )
                       : const CircularProgressIndicator(
                           color: primaryColor,
@@ -149,7 +154,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     child: Container(
                       padding: const EdgeInsets.symmetric(vertical: 8),
                       child: const Text(
-                        ' Signup.',
+                        ' Sign Up.',
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                         ),

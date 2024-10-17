@@ -15,6 +15,11 @@ showSnackBar(BuildContext context, String text) {
   return ScaffoldMessenger.of(context).showSnackBar(
     SnackBar(
       content: Text(text),
+      behavior: SnackBarBehavior.floating,
+      dismissDirection: DismissDirection.none,
+      margin: const EdgeInsets.only(bottom: 100.0),
+      duration: const Duration(seconds: 10),
+      backgroundColor: Colors.black,
     ),
   );
 }
