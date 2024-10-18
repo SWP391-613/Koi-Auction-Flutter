@@ -1,15 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:instagram_clone_flutter/providers/user_provider.dart';
 import 'package:instagram_clone_flutter/screens/auction_list_screen.dart';
 import 'package:instagram_clone_flutter/screens/koi_list_screen.dart';
 import 'package:instagram_clone_flutter/screens/login_screen.dart';
 import 'package:instagram_clone_flutter/screens/profile_screen.dart';
 import 'package:instagram_clone_flutter/screens/signup_screen.dart';
+import 'package:provider/provider.dart';
 
 class AppDrawer extends StatelessWidget {
   const AppDrawer({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    final userProvider = Provider.of<UserProvider>(context);
+    final user = userProvider.user;
+
     return Drawer(
       child: ListView(
         padding: EdgeInsets.zero,
@@ -44,9 +49,9 @@ class AppDrawer extends StatelessWidget {
             leading: const Icon(Icons.gavel),
             title: const Text('My Profile'),
             onTap: () {
-              Navigator.pushReplacement(
+              Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const ProfileScreen(uid: "4")),
+                MaterialPageRoute(builder: (context) => ProfileScreen(uid: user?.id ?? 0)),
               );
             },
           ),
@@ -70,36 +75,28 @@ class AppDrawer extends StatelessWidget {
               );
             },
           ),
-          ListTile(
-            leading: const Icon(Icons.login),
-            title: const Text('Login'),
-            onTap: () {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (context) => const LoginScreen()),
-              );
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.app_registration),
-            title: const Text('Register'),
-            onTap: () {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (context) => const SignupScreen()),
-              );
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.login_outlined),
-            title: const Text('Logout'),
-            onTap: () {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (context) => const LoginScreen()),
-              );
-            },
-          ),
+          if (user == null) ...[
+            ListTile(
+              leading: const Icon(Icons.login),
+              title: const Text('Login'),
+              onTap: () {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => const LoginScreen()),
+                );
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.app_registration),
+              title: const Text('Register'),
+              onTap: () {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => const SignupScreen()),
+                );
+              },
+            ),
+          ],
         ],
       ),
     );

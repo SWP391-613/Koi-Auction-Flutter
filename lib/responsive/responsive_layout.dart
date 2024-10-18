@@ -20,14 +20,14 @@ class _ResponsiveLayoutState extends State<ResponsiveLayout> {
   @override
   void initState() {
     super.initState();
-    addData();
+    // addData();
   }
 
-  addData() async {
-    UserProvider userProvider =
-        Provider.of<UserProvider>(context, listen: false);
-    await userProvider.refreshUser();
-  }
+  // addData() async {
+  //   UserProvider userProvider =
+  //       Provider.of<UserProvider>(context, listen: false);
+  //   await userProvider.refreshUser(context);
+  // }
 
   @override
   Widget build(BuildContext context) {

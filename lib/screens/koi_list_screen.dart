@@ -110,7 +110,7 @@ class _KoiListPageState extends State<KoiListPage> {
                     Stack(
                       children: [
                         Container(
-                          height: 200, // Fixed height for the card
+                          height: 150, // Fixed height for the card
                           decoration: const BoxDecoration(
                             color: Color(0xFF1365B4), // Background color
                             borderRadius: BorderRadius.vertical(

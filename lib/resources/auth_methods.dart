@@ -1,12 +1,9 @@
-import 'dart:convert';  // For JSON encoding
 import 'package:dio/dio.dart';
-import 'dart:typed_data';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:instagram_clone_flutter/constants/endpoints.dart';
-import 'package:instagram_clone_flutter/models/user.dart' as model;
-import 'package:instagram_clone_flutter/resources/storage_methods.dart';
+import 'package:instagram_clone_flutter/responses/user_login.dart';
 import 'package:instagram_clone_flutter/services/auth_service.dart';
 
 class AuthMethods {
@@ -16,13 +13,13 @@ class AuthMethods {
   final AuthService _authService = AuthService();
 
   // Logging in user via HTTP request
-  Future<String> loginUser({
+  Future<UserLoginResponse?> loginUser({
     required String email,
     required String password,
   }) async {
     try {
       if (email.isEmpty || password.isEmpty) {
-        return "Please enter all the fields";
+        return null; // Return null if fields are empty
       }
 
       if (kDebugMode) {
@@ -44,19 +41,13 @@ class AuthMethods {
       );
 
       if (response.statusCode == 200) {
-
-        // Get token and refresh_token from the response
-        String token = response.data['token'];
-        String refreshToken = response.data['refresh_token'];
-
-        if (kDebugMode) {
-          print("Token: $token");
-        }
+        // Parse response into UserLoginResponse object
+        UserLoginResponse userLoginResponse = UserLoginResponse.fromJson(response.data);
 
         // Save tokens to SharedPreferences
-        await _authService.saveTokens(token, refreshToken);
+        await _authService.saveTokens(userLoginResponse.token, userLoginResponse.refreshToken);
 
-        return "success";
+        return userLoginResponse; // Return the UserLoginResponse object
       } else {
         String errorMessage = response.data['message'] ?? "Login failed";
         if (kDebugMode) {
@@ -64,25 +55,23 @@ class AuthMethods {
           print("Status code: ${response.statusCode}");
           print("Response data: ${response.data}");
         }
-        return errorMessage;
+        return null; // Return null on failure
       }
     } catch (e) {
       if (kDebugMode) {
         print("Exception occurred during login: $e");
       }
-      return "An unexpected error occurred. Please try again later.";
+      return null; // Return null on exception
     }
   }
 
-  // get user details
-  Future<model.User> getUserDetails() async {
-    User currentUser = _auth.currentUser!;
-
-    DocumentSnapshot documentSnapshot =
-    await _firestore.collection('users').doc(currentUser.uid).get();
-
-    return model.User.fromSnap(documentSnapshot);
-  }
+  // Get user details
+  // Future<User> getUserDetails() async {
+  //   User currentUser = _auth.currentUser!;
+  //   DocumentSnapshot documentSnapshot =
+  //   await _firestore.collection('users').doc(currentUser.uid).get();
+  //   return User.fromDocument(documentSnapshot);
+  // }
 
   // Signing out user via HTTP request
   Future<String> signOut() async {
@@ -96,13 +85,12 @@ class AuthMethods {
         options: Options(
           headers: {
             'Content-Type': 'application/json; charset=UTF-8',
-            // Include any additional headers if required, like authorization tokens
           },
         ),
       );
 
       if (response.statusCode == 200) {
-        res = "success";  // Assuming logout was successful
+        res = "success"; // Assuming logout was successful
       } else {
         res = response.data['message'] ?? "Logout failed";
       }
@@ -114,9 +102,7 @@ class AuthMethods {
   }
 
   // Signing Up User
-
-  Future<String> signUpUser() async  {
+  Future<String> signUpUser() async {
     return "success";
   }
-
 }

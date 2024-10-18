@@ -1,55 +1,71 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:instagram_clone_flutter/constants/endpoints.dart';
 import 'package:instagram_clone_flutter/models/user_profile.dart';
+import 'package:shared_preferences/shared_preferences.dart'; // For clearing stored session tokens
 
-class ProfileScreen extends StatelessWidget {
-  final String uid;
-
+class ProfileScreen extends StatefulWidget {
+  final int uid; // User ID passed from previous screen
   const ProfileScreen({Key? key, required this.uid}) : super(key: key);
 
   @override
+  _ProfileScreenState createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<ProfileScreen> {
+  late Dio _dio;
+  bool _isLoading = true;
+  UserProfile? _userProfile;
+  String? _errorMessage;
+
+  @override
+  void initState() {
+    super.initState();
+    _dio = Dio();
+    _fetchUserProfile();
+  }
+
+  // Function to fetch the user profile from the API
+  Future<void> _fetchUserProfile() async {
+    try {
+      final response = await _dio.get('$userEndpoint/${widget.uid}');
+      setState(() {
+        _userProfile = UserProfile.fromJson(response.data);
+        _isLoading = false;
+      });
+    } catch (error) {
+      setState(() {
+        _errorMessage = 'Error fetching user data';
+        _isLoading = false;
+      });
+    }
+  }
+
+  // Function to handle logout and navigate back to the login screen
+  Future<void> _logout(BuildContext context) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.clear(); // Clear all session-related data (like tokens)
+    Navigator.pushReplacementNamed(context, '/'); // Redirect to login page
+  }
+
+  @override
   Widget build(BuildContext context) {
-    // Replace with your data fetching logic, for example, an API call to fetch user data
-    final userData = {
-      "id": 4,
-      "createdAt": [2024, 9, 27, 22, 21, 18, 973575000],
-      "updatedAt": [2024, 9, 27, 22, 21, 18, 973595000],
-      "role": {"id": 1, "name": "member"},
-      "enabled": true,
-      "username": "hoangdz1604@gmail.com",
-      "authorities": [{"authority": "ROLE_MEMBER"}],
-      "accountNonExpired": true,
-      "accountNonLocked": true,
-      "credentialsNonExpired": true,
-      "first_name": "Bao",
-      "last_name": "Chau",
-      "phone_number": null,
-      "email": "ybjow@gmail.com",
-      "address": "Hoa Khanh, Da Nang",
-      "password": "...", // Hide password for security
-      "is_active": false,
-      "is_subscription": false,
-      "status": null,
-      "date_of_birth": 1097712000000,
-      "avatar_url": "https://scontent.fsgn19-1.fna.fbcdn.net/v/t39.30808-6/281656840_1346404902531656_736225023402507132_n.jpg?stp=dst-jpg_s206x206&_nc_cat=111&ccb=1-7&_nc_sid=50ad20&_nc_ohc=cYMAxnhsudQQ7kNvgGYW5H-&_nc_ht=scontent.fsgn19-1.fna&_nc_gid=AyDs4YR_9pcg7iijF98nENJ&oh=00_AYCW4H7pDS7eVp7XYOETdFnevuPSokHiqMAykK1dNvCgww&oe=6717B460",
-      "google_account_id": 0,
-      "account_balance": 0,
-    };
-
-    // Parse the user data
-    UserProfile userProfile = UserProfile.fromJson(userData);
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('My Profile'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
-            Navigator.pop(context); // Navigate back to AuctionListPage
+            Navigator.pop(context); // Navigate back
           },
         ),
       ),
-
-      body: Padding(
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator()) // Loading indicator
+          : _errorMessage != null
+          ? Center(child: Text(_errorMessage!)) // Show error if there's an issue
+          : _userProfile != null
+          ? Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -57,32 +73,46 @@ class ProfileScreen extends StatelessWidget {
             Center(
               child: CircleAvatar(
                 radius: 50,
-                backgroundImage: userProfile.avatarUrl != null
-                    ? NetworkImage(userProfile.avatarUrl!)
+                backgroundImage: _userProfile!.avatarUrl != null
+                    ? NetworkImage(_userProfile!.avatarUrl!)
                     : null,
-                child: userProfile.avatarUrl == null
+                child: _userProfile!.avatarUrl == null
                     ? const Icon(Icons.person, size: 50)
                     : null,
               ),
             ),
             const SizedBox(height: 16),
             Text(
-              'Name: ${userProfile.firstName} ${userProfile.lastName}',
+              'Name: ${_userProfile!.firstName} ${_userProfile!.lastName}',
               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
-            Text('Email: ${userProfile.email}'),
+            Text('Email: ${_userProfile!.email}'),
             const SizedBox(height: 8),
-            Text('Address: ${userProfile.address}'),
+            Text('Address: ${_userProfile!.address}'),
             const SizedBox(height: 8),
-            Text('Account Active: ${userProfile.isActive ? "Yes" : "No"}'),
+            Text('Account Active: ${_userProfile!.isActive ? "Yes" : "No"}'),
             const SizedBox(height: 8),
-            Text('Account Balance: \$${userProfile.accountBalance}'),
+            Text('Account Balance: \$${_userProfile!.accountBalance}'),
             const SizedBox(height: 8),
-            Text('Username: ${userProfile.username}'),
+            Text('Email: ${_userProfile!.email}'),
+            const SizedBox(height: 8),
+            TextButton(
+              onPressed: () {
+                // Navigate to EditProfileScreen and pass the user profile data
+                Navigator.pushNamed(context, '/edit_profile',
+                    arguments: _userProfile);
+              },
+              child: const Text('Edit Profile'),
+            ),
+            TextButton(
+              onPressed: () => _logout(context), // Logout function
+              child: const Text('Logout'),
+            ),
           ],
         ),
-      ),
+      )
+          : const Center(child: Text('No user data found')),
     );
   }
 }
