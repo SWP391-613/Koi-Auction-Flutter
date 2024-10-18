@@ -1,6 +1,8 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import 'package:instagram_clone_flutter/constants/endpoints.dart';
+import 'package:instagram_clone_flutter/models/auction.dart';
 import 'package:instagram_clone_flutter/screens/auction_detail_screen.dart';
 import 'package:instagram_clone_flutter/widgets/app_drawer.dart';
 
@@ -13,9 +15,9 @@ class AuctionListPage extends StatefulWidget {
 
 class _AuctionListPageState extends State<AuctionListPage> {
   bool isLoading = true;
-  List<dynamic>? auctionList;
+  List<Auction>? auctionList; // Use the Auction model
   final Dio dio = Dio();
-  final int page = 1;
+  final int page = 0;
   final int limit = 10;
 
   @override
@@ -28,9 +30,15 @@ class _AuctionListPageState extends State<AuctionListPage> {
     try {
       final response = await dio.get("$auctionEndpoint?page=$page&limit=$limit");
 
+      if (kDebugMode) {
+        print("Response auction list: $response");
+      }
+
       if (response.statusCode == 200) {
         setState(() {
-          auctionList = response.data; // Store the list of auctions
+          auctionList = (response.data as List)
+              .map((auction) => Auction.fromJson(auction))
+              .toList(); // Convert JSON to Auction objects
           isLoading = false;
         });
       } else {
@@ -66,24 +74,68 @@ class _AuctionListPageState extends State<AuctionListPage> {
     return Scaffold(
       appBar: AppBar(title: const Text('Auction List')),
       drawer: const AppDrawer(),
-      body: ListView.builder(
-        itemCount: auctionList!.length,
-        itemBuilder: (context, index) {
-          final auction = auctionList![index];
-          return ListTile(
-            title: Text(auction['title']),
-            subtitle: Text('Status: ${auction['status']}'),
-            onTap: () {
-              // Navigate to AuctionDetailPage and pass the selected auction's ID
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => AuctionDetailPage(auctionId: auction['id']),
+      body: Padding(
+        padding: const EdgeInsets.all(8.0), // Add padding around the grid
+        child: GridView.builder(
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2, // Two auctions per row
+            childAspectRatio: 1, // Aspect ratio for each item
+            crossAxisSpacing: 10, // Space between columns
+            mainAxisSpacing: 10, // Space between rows
+          ),
+          itemCount: auctionList!.length,
+          itemBuilder: (context, index) {
+            final auction = auctionList![index];
+            Color auctionStatusTextColor = auction.status == 'open' ? Colors.green : Colors.red;
+            return GestureDetector(
+              onTap: () {
+                // Navigate to AuctionDetailPage and pass the selected auction's ID
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => AuctionDetailPage(auctionId: auction.id),
+                  ),
+                );
+              },
+              child: Card(
+                elevation: 3, // Shadow effect
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10), // Rounded corners
                 ),
-              );
-            },
-          );
-        },
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        auction.title,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'Start Date: ${auction.startTime}',
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'End Date: ${auction.endTime}',
+                      ),
+                      Text(
+                        'Status: ${auction.status}',
+                        style: TextStyle(fontSize: 14, color: auctionStatusTextColor),
+                      ),
+                      // Add more auction details here if needed
+                    ],
+                  ),
+                ),
+              ),
+            );
+          },
+        ),
       ),
     );
   }

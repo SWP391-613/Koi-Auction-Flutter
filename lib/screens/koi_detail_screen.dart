@@ -78,18 +78,29 @@ class _KoiDetailPageState extends State<KoiDetailPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Image.network(koiData!['thumbnail']),
-            SizedBox(height: 10),
+            Transform.scale(
+              scale: 0.8,  // Scale the image to 80% of its original size
+              child: Image.network(koiData!['thumbnail']),
+            ),
+            const SizedBox(height: 10),
             Text(
               'Name: ${koiData!['name']}',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
             Text('Sex: ${koiData!['sex']}'),
             Text('Length: ${koiData!['length']} cm'),
             Text('Age: ${koiData!['age']} years'),
             Text('Price: \$${koiData!['base_price']}'),
             Text('Status: ${koiData!['status_name']}'),
-            Text('Description: ${koiData!['description']}'),
+            // Handling long description
+            Flexible(
+              child: Text(
+                'Description: ${koiData!['description']}',
+                overflow: TextOverflow.ellipsis, // Add ellipsis if overflow occurs
+                maxLines: 3,  // Limit to 3 lines (adjust as needed)
+                softWrap: true, // Allows wrapping to the next line
+              ),
+            ),
           ],
         ),
       ),

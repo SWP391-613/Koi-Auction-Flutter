@@ -7,11 +7,13 @@ import 'package:flutter/foundation.dart';
 import 'package:instagram_clone_flutter/constants/endpoints.dart';
 import 'package:instagram_clone_flutter/models/user.dart' as model;
 import 'package:instagram_clone_flutter/resources/storage_methods.dart';
+import 'package:instagram_clone_flutter/services/auth_service.dart';
 
 class AuthMethods {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final Dio _dio = Dio(); // Create a Dio instance
+  final AuthService _authService = AuthService();
 
   // Logging in user via HTTP request
   Future<String> loginUser({
@@ -42,6 +44,18 @@ class AuthMethods {
       );
 
       if (response.statusCode == 200) {
+
+        // Get token and refresh_token from the response
+        String token = response.data['token'];
+        String refreshToken = response.data['refresh_token'];
+
+        if (kDebugMode) {
+          print("Token: $token");
+        }
+
+        // Save tokens to SharedPreferences
+        await _authService.saveTokens(token, refreshToken);
+
         return "success";
       } else {
         String errorMessage = response.data['message'] ?? "Login failed";
