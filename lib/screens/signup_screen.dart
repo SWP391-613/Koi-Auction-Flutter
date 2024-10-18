@@ -9,6 +9,7 @@ import 'package:instagram_clone_flutter/responsive/web_screen_layout.dart';
 import 'package:instagram_clone_flutter/screens/login_screen.dart';
 import 'package:instagram_clone_flutter/utils/colors.dart';
 import 'package:instagram_clone_flutter/utils/utils.dart';
+import 'package:instagram_clone_flutter/widgets/app_drawer.dart';
 import 'package:instagram_clone_flutter/widgets/text_field_input.dart';
 
 class SignupScreen extends StatefulWidget {
@@ -80,6 +81,7 @@ class _SignupScreenState extends State<SignupScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      drawer: const AppDrawer(),
       resizeToAvoidBottomInset: false,
       body: SafeArea(
         child: Container(

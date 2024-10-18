@@ -102,7 +102,7 @@ class _AuctionDetailPageState extends State<AuctionDetailPage> {
         appBar: AppBar(
           title: Text('Auction Detail'),
           leading: IconButton(
-            icon: Icon(Icons.arrow_back),
+            icon: const Icon(Icons.arrow_back),
             onPressed: () {
               Navigator.pop(context); // Navigate back to AuctionListPage
             },

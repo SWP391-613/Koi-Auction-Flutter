@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:instagram_clone_flutter/constants/endpoints.dart';
 import 'package:instagram_clone_flutter/models/koi.dart';
 import 'package:instagram_clone_flutter/services/auth_service.dart';
+import 'package:instagram_clone_flutter/utils/currency.dart';
 import 'package:instagram_clone_flutter/widgets/app_drawer.dart';
 
 import 'koi_detail_screen.dart';
@@ -36,14 +37,13 @@ class _KoiListPageState extends State<KoiListPage> {
         "$koiEndpoint?page=$page&limit=$limit",
         options: Options(
           headers: {
-            'Authorization': 'Bearer $token', // Include Bearer token in the header
+            'Authorization': 'Bearer $token',
           },
         ),
       );
 
       if (response.statusCode == 200) {
         setState(() {
-          // Convert response data to List<Koi>
           koiList = (response.data['item'] as List)
               .map((koiJson) => Koi.fromJson(koiJson))
               .toList();
@@ -82,30 +82,82 @@ class _KoiListPageState extends State<KoiListPage> {
     return Scaffold(
       appBar: AppBar(title: const Text('Koi List')),
       drawer: const AppDrawer(),
-      body: ListView.builder(
-        itemCount: koiList!.length,
-        itemBuilder: (context, index) {
-          final koi = koiList![index];
-          return ListTile(
-            leading: Image.network(
-              koi.thumbnail,
-              width: 50,
-              height: 80,
-              fit: BoxFit.cover,
-            ),
-            title: Text(koi.name),
-            subtitle: Text('Price: \$${koi.basePrice}'),
-            onTap: () {
-              // Navigate to KoiDetailPage and pass the selected koi's ID
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => KoiDetailPage(koiId: koi.id),
+      body: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: GridView.builder(
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2, // Two koi items per row
+            childAspectRatio: 0.7, // Adjust the aspect ratio for better fit
+            crossAxisSpacing: 8.0, // Space between columns
+            mainAxisSpacing: 8.0, // Space between rows
+          ),
+          itemCount: koiList!.length,
+          itemBuilder: (context, index) {
+            final koi = koiList![index];
+            return GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => KoiDetailPage(koiId: koi.id),
+                  ),
+                );
+              },
+              child: Card(
+                elevation: 4,
+                child: Column(
+                  children: [
+                    Stack(
+                      children: [
+                        Container(
+                          height: 200, // Fixed height for the card
+                          decoration: const BoxDecoration(
+                            color: Color(0xFF1365B4), // Background color
+                            borderRadius: BorderRadius.vertical(
+                              top: Radius.circular(10),
+                            ),
+                          ),
+                        ),
+                        Positioned(
+                          left: 0,
+                          right: 0,
+                          top: 0,
+                          bottom: 0,
+                          child: Align(
+                            alignment: Alignment.center,
+                            child: Transform.scale(
+                              scale: 0.9, // Scale the image to 80%
+                              child: Image.network(
+                                koi.thumbnail,
+                                fit: BoxFit.cover,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            koi.name,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text('Price: ${formatCurrency(koi.basePrice)}'),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
-              );
-            },
-          );
-        },
+              ),
+            );
+          },
+        ),
       ),
     );
   }

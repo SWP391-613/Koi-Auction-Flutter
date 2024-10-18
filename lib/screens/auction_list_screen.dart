@@ -86,7 +86,7 @@ class _AuctionListPageState extends State<AuctionListPage> {
           itemCount: auctionList!.length,
           itemBuilder: (context, index) {
             final auction = auctionList![index];
-            Color auctionStatusTextColor = auction.status == 'open' ? Colors.green : Colors.red;
+            Color auctionStatusTextColor = auction.status == 'ENDED' ? Colors.red : Colors.green;
             return GestureDetector(
               onTap: () {
                 // Navigate to AuctionDetailPage and pass the selected auction's ID

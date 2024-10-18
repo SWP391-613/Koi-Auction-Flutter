@@ -28,7 +28,7 @@ class _KoiDetailPageState extends State<KoiDetailPage> {
     try {
       final response = await dio.get('$koiEndpoint/${widget.koiId}');
 
-      if(kDebugMode){
+      if (kDebugMode) {
         print("Response koi details: $response");
       }
 
@@ -78,10 +78,17 @@ class _KoiDetailPageState extends State<KoiDetailPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Transform.scale(
-              scale: 0.8,  // Scale the image to 80% of its original size
-              child: Image.network(koiData!['thumbnail']),
-            ),
+            Container(
+                decoration: const BoxDecoration(
+                  color: Color(0xFF1365B4), // Background color
+                  borderRadius: BorderRadius.vertical(
+                    top: Radius.circular(10),
+                  ),
+                ),
+                child: Transform.scale(
+                  scale: 0.8, // Scale the image to 80% of its original size
+                  child: Image.network(koiData!['thumbnail']),
+                )),
             const SizedBox(height: 10),
             Text(
               'Name: ${koiData!['name']}',
@@ -96,8 +103,10 @@ class _KoiDetailPageState extends State<KoiDetailPage> {
             Flexible(
               child: Text(
                 'Description: ${koiData!['description']}',
-                overflow: TextOverflow.ellipsis, // Add ellipsis if overflow occurs
-                maxLines: 3,  // Limit to 3 lines (adjust as needed)
+                overflow: TextOverflow.ellipsis,
+                // Add ellipsis if overflow occurs
+                maxLines: 3,
+                // Limit to 3 lines (adjust as needed)
                 softWrap: true, // Allows wrapping to the next line
               ),
             ),
