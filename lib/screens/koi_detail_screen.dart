@@ -79,16 +79,20 @@ class _KoiDetailPageState extends State<KoiDetailPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
-                decoration: const BoxDecoration(
-                  color: Color(0xFF1365B4), // Background color
-                  borderRadius: BorderRadius.vertical(
-                    top: Radius.circular(10),
-                  ),
+              decoration: const BoxDecoration(
+                color: Color(0xFF1365B4), // Background color
+                borderRadius: BorderRadius.vertical(
+                  top: Radius.circular(10),
                 ),
-                child: Transform.scale(
-                  scale: 0.8, // Scale the image to 80% of its original size
-                  child: Image.network(koiData!['thumbnail']),
-                )),
+              ),
+              child: SizedBox(
+                height: 200, // Adjust the height as per your need
+                child: Image.network(
+                  koiData!['thumbnail'],
+                  fit: BoxFit.cover, // To ensure the image fits well in the box
+                ),
+              ),
+            ),
             const SizedBox(height: 10),
             Text(
               'Name: ${koiData!['name']}',
@@ -99,15 +103,12 @@ class _KoiDetailPageState extends State<KoiDetailPage> {
             Text('Age: ${koiData!['age']} years'),
             Text('Price: \$${koiData!['base_price']}'),
             Text('Status: ${koiData!['status_name']}'),
-            // Handling long description
             Flexible(
               child: Text(
                 'Description: ${koiData!['description']}',
                 overflow: TextOverflow.ellipsis,
-                // Add ellipsis if overflow occurs
                 maxLines: 3,
-                // Limit to 3 lines (adjust as needed)
-                softWrap: true, // Allows wrapping to the next line
+                softWrap: true,
               ),
             ),
           ],

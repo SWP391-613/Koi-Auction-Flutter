@@ -8,6 +8,11 @@ class UserProvider with ChangeNotifier {
 
   UserLoginResponse? get user => _user; // Getter for the user object
 
+  set user(UserLoginResponse? newUser) {
+    _user = newUser;
+    notifyListeners(); // Notify listeners about the change
+  }
+
   Future<void> loginUser(BuildContext context, String email, String password) async {
     AuthMethods authMethods = AuthMethods();
     _user = await authMethods.loginUser(email: email, password: password); // Store the entire UserLoginResponse object
